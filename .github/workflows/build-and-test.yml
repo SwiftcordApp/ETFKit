@@ -10,12 +10,30 @@ on:
 
 jobs:
   build:
-
-    runs-on: macos-latest
+    runs-on: macos-12
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Build
-      run: swift build -v
-    - name: Run tests
-      run: swift test -v
+      - uses: actions/checkout@v3
+
+      - name: Xcode Select
+        uses: devbotsxyz/xcode-select@v1.1.0
+        with:
+          version: 13.3.1
+
+      - name: Build
+        run: swift build -v
+
+  test:
+    runs-on: macos-12
+    needs: [build]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Xcode Select
+        uses: devbotsxyz/xcode-select@v1.1.0
+        with:
+          version: 13.3.1
+
+      - name: Test
+        run: swift test
