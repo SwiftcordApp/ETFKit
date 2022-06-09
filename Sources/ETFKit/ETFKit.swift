@@ -3,7 +3,7 @@ import Foundation
 public struct ETFKit {
     static let VERSION: UInt8 = 131
 
-    enum ETFTags: UInt8 {
+    enum Tag: UInt8 {
         case NEW_FLOAT = 70
         case SMALL_INT = 97
         case INTEGER = 98
@@ -23,17 +23,7 @@ public struct ETFKit {
         case UnknownAtom(String)
     }
 
-    internal static func parseDict(data: Data) throws -> [String : Any] {
-        // Decode header
-        guard data[0] == ETFKit.VERSION else {
-            throw ETFDecodingError.MismatchingTag("Expected version \(ETFKit.VERSION), got \(data[0])")
-        }
-
-        var idx = 1
-        return try decodingMap(data: data, from: &idx)
-    }
-
-    internal static func packDict(dict: [String : Any]) {
-        
+    enum ETFEncodingError: Error {
+        case UnencodableType(String)
     }
 }

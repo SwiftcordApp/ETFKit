@@ -1,5 +1,5 @@
 //
-//  Parse.swift
+//  Decode.swift
 //  
 //
 //  Created by Vincent Kwok on 9/6/22.
@@ -7,28 +7,40 @@
 
 import Foundation
 
+extension ETFKit {
+    internal static func decode(data: Data) throws -> Any {
+        // Decode header
+        guard data[0] == ETFKit.VERSION else {
+            throw ETFDecodingError.MismatchingTag("Expected version \(ETFKit.VERSION), got \(data[0])")
+        }
+
+        var idx = 1
+        return try decodingAny(data: data, from: &idx)
+    }
+}
+
 // Primitive decoding functions
 extension ETFKit {
     // SMALL_INTEGER_EXT
     internal static func decodingValue(data: Data, from idx: inout Int) throws -> UInt8 {
-        guard data[idx] == ETFTags.SMALL_INT.rawValue else {
-            throw ETFDecodingError.MismatchingTag("Expected tag \(ETFTags.SMALL_INT), got \(data[idx])")
+        guard data[idx] == Tag.SMALL_INT.rawValue else {
+            throw ETFDecodingError.MismatchingTag("Expected tag \(Tag.SMALL_INT), got \(data[idx])")
         }
         idx += 2
         return data[idx - 1]
     }
     // INTEGER_EXT
     internal static func decodingValue(data: Data, from idx: inout Int) throws -> Int32 {
-        guard data[idx] == ETFTags.INTEGER.rawValue else {
-            throw ETFDecodingError.MismatchingTag("Expected tag \(ETFTags.INTEGER), got \(data[idx])")
+        guard data[idx] == Tag.INTEGER.rawValue else {
+            throw ETFDecodingError.MismatchingTag("Expected tag \(Tag.INTEGER), got \(data[idx])")
         }
         idx += 5
         return data.subdata(in: idx-4..<idx).toInt32()
     }
     // SMALL_BIG_EXT (Unused)
     internal static func decodingValue(data: Data, from idx: inout Int) throws -> Decimal {
-        guard data[idx] == ETFTags.SMALL_BIG.rawValue else {
-            throw ETFDecodingError.MismatchingTag("Expected tag \(ETFTags.SMALL_BIG), got \(data[idx])")
+        guard data[idx] == Tag.SMALL_BIG.rawValue else {
+            throw ETFDecodingError.MismatchingTag("Expected tag \(Tag.SMALL_BIG), got \(data[idx])")
         }
         idx += 3
         let num = Int(data[idx - 2])
@@ -43,16 +55,16 @@ extension ETFKit {
     }
     // NEW_FLOAT_EXT
     internal static func decodingValue(data: Data, from idx: inout Int) throws -> Double {
-        guard data[idx] == ETFTags.NEW_FLOAT.rawValue else {
-            throw ETFDecodingError.MismatchingTag("Expected tag \(ETFTags.NEW_FLOAT), got \(data[idx])")
+        guard data[idx] == Tag.NEW_FLOAT.rawValue else {
+            throw ETFDecodingError.MismatchingTag("Expected tag \(Tag.NEW_FLOAT), got \(data[idx])")
         }
         idx += 9
         return data.subdata(in: idx-8..<idx).toDouble()
     }
     // BINARY_EXT
     internal static func decodingValue(data: Data, from idx: inout Int) throws -> String {
-        guard data[idx] == ETFTags.BINARY.rawValue else {
-            throw ETFDecodingError.MismatchingTag("Expected tag \(ETFTags.BINARY), got \(data[idx])")
+        guard data[idx] == Tag.BINARY.rawValue else {
+            throw ETFDecodingError.MismatchingTag("Expected tag \(Tag.BINARY), got \(data[idx])")
         }
         idx += 1
         let dataStart = idx + 4
@@ -64,9 +76,10 @@ extension ETFKit {
 }
 
 extension ETFKit {
+    // SMALL_AROM_EXT
     internal static func decodingSmallAtom(data: Data, from idx: inout Int) throws -> Any? {
-        guard data[idx] == ETFTags.SMALL_AROM.rawValue else {
-            throw ETFDecodingError.MismatchingTag("Expected tag \(ETFTags.SMALL_AROM), got \(data[idx])")
+        guard data[idx] == Tag.SMALL_AROM.rawValue else {
+            throw ETFDecodingError.MismatchingTag("Expected tag \(Tag.SMALL_AROM), got \(data[idx])")
         }
         idx += 2
         let from = idx
@@ -83,7 +96,7 @@ extension ETFKit {
     }
 
     internal static func decodingAny(data: Data, from idx: inout Int) throws -> Any {
-        switch ETFTags(rawValue: data[idx]) {
+        switch Tag(rawValue: data[idx]) {
         case .NEW_FLOAT: return try decodingValue(data: data, from: &idx) as Double
         case .SMALL_INT: return try decodingValue(data: data, from: &idx) as UInt8
         case .INTEGER: return try decodingValue(data: data, from: &idx) as Int32
@@ -95,15 +108,16 @@ extension ETFKit {
         default: throw ETFDecodingError.UnhandledTag("Tag \(data[idx]) is not handled")
         }
     }
-    
+
+    // LIST_EXT or NIL_EXT (empty list)
     internal static func decodingArray(data: Data, from idx: inout Int) throws -> [Any] {
-        if data[idx] == ETFTags.EMPTY_LIST.rawValue {
+        if data[idx] == Tag.EMPTY_LIST.rawValue {
             idx += 1
             return []
         }
 
-        guard data[idx] == ETFTags.LIST.rawValue else {
-            throw ETFDecodingError.MismatchingTag("Expected tag \(ETFTags.LIST), got \(data[idx])")
+        guard data[idx] == Tag.LIST.rawValue else {
+            throw ETFDecodingError.MismatchingTag("Expected tag \(Tag.LIST), got \(data[idx])")
         }
 
         idx += 1
@@ -118,9 +132,10 @@ extension ETFKit {
         return arr
     }
 
+    // MAP_EXT
     internal static func decodingMap(data: Data, from idx: inout Int) throws -> [String : Any] {
-        guard data[idx] == ETFTags.MAP.rawValue else {
-            throw ETFDecodingError.MismatchingTag("Expected tag \(ETFTags.MAP), got \(data[idx])")
+        guard data[idx] == Tag.MAP.rawValue else {
+            throw ETFDecodingError.MismatchingTag("Expected tag \(Tag.MAP), got \(data[idx])")
         }
 
         idx += 4

@@ -8,40 +8,40 @@ final class DecodeTests: XCTestCase {
         // Use XCTAssert and related functions to verify your tests produce the correct
         // results.
         // XCTAssertEqual(ETFKit().text, "Hello, World!")
-        print(String(describing: try ETFKit.parseDict(data: Data(base64Encoded: "g3QAAAACbQAAAAJvcGEObQAAAAFkdAAAAAdtAAAACGd1aWxkX2lkbQAAABI4NjczOTE3MTA0MDgyMTI1MTJtAAAABnR5cGluZ3MEdHJ1ZW0AAAAHdGhyZWFkc3MEdHJ1ZW0AAAAKYWN0aXZpdGllc3MEdHJ1ZW0AAAAHbWVtYmVyc2ptAAAACGNoYW5uZWxzdAAAAABtAAAAE3RocmVhZF9tZW1iZXJfbGlzdHNq")!)))
+        print(String(describing: try ETFKit.decode(data: Data(base64Encoded: "g3QAAAACbQAAAAJvcGEObQAAAAFkdAAAAAdtAAAACGd1aWxkX2lkbQAAABI4NjczOTE3MTA0MDgyMTI1MTJtAAAABnR5cGluZ3MEdHJ1ZW0AAAAHdGhyZWFkc3MEdHJ1ZW0AAAAKYWN0aXZpdGllc3MEdHJ1ZW0AAAAHbWVtYmVyc2ptAAAACGNoYW5uZWxzdAAAAABtAAAAE3RocmVhZF9tZW1iZXJfbGlzdHNq")!)))
     }
 
     func testBigEndian() throws {
-        print(String(describing: try ETFKit.parseDict(data: Data(base64Encoded: "g3QAAAACbQAAAAFhYjp7/1VtAAAAAWJtAAAAAWM=")!)))
+        print(String(describing: try ETFKit.decode(data: Data(base64Encoded: "g3QAAAACbQAAAAFhYjp7/1VtAAAAAWJtAAAAAWM=")!)))
     }
 
     func testList() throws {
-        print(String(describing: try ETFKit.parseDict(data: Data(base64Encoded: "g3QAAAABbQAAAAFhbAAAAANtAAAAAWJtAAAAAWNtAAAAAWRq")!)))
+        print(String(describing: try ETFKit.decode(data: Data(base64Encoded: "g3QAAAABbQAAAAFhbAAAAANtAAAAAWJtAAAAAWNtAAAAAWRq")!)))
     }
     
     func testEmptyList() throws {
-        print(String(describing: try ETFKit.parseDict(data: Data(base64Encoded: "g3QAAAABbQAAAAVlbXB0eWo=")!)))
+        print(String(describing: try ETFKit.decode(data: Data(base64Encoded: "g3QAAAABbQAAAAVlbXB0eWo=")!)))
     }
 
     func testDouble() throws {
-        print(String(describing: try ETFKit.parseDict(data: Data(base64Encoded: "g3QAAAABbQAAAAF2RkAkMzMzMzMz")!)))
+        print(String(describing: try ETFKit.decode(data: Data(base64Encoded: "g3QAAAABbQAAAAF2RkAkMzMzMzMz")!)))
     }
 
     func testNil() throws {
-        print(String(describing: try ETFKit.parseDict(data: Data(base64Encoded: "g3QAAAABbQAAAAFucwNuaWw=")!)))
+        print(String(describing: try ETFKit.decode(data: Data(base64Encoded: "g3QAAAABbQAAAAFucwNuaWw=")!)))
     }
 
     func testBool() throws {
-        print(String(describing: try ETFKit.parseDict(data: Data(base64Encoded: "g3QAAAABbQAAAAFicwVmYWxzZQ==")!)))
+        print(String(describing: try ETFKit.decode(data: Data(base64Encoded: "g3QAAAABbQAAAAFicwVmYWxzZQ==")!)))
     }
 
     func testUnicode() throws {
-        print(String(describing: try ETFKit.parseDict(data: Data(base64Encoded: "g3QAAAABbQAAAAFibQAAAAbkvaDlpb0=")!)))
+        print(String(describing: try ETFKit.decode(data: Data(base64Encoded: "g3QAAAABbQAAAAFibQAAAAbkvaDlpb0=")!)))
     }
 }
 
 final class PackTests: XCTestCase {
     func testSimplePack() throws {
-        print(ETFKit.packMap().base64EncodedString())
+        print(try ETFKit.encode(["hello": "world"]).base64EncodedString())
     }
 }
