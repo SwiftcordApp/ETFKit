@@ -65,7 +65,7 @@ internal extension Data {
             appendValue(data)
         } else if let data = data as? String {
             appendValue(data)
-        } else if let data = data as? Bool {
+        } else if let data = data as? Bool? {
             appendSmallAtom(data)
         } else if let data = data as? [Any] {
             try appendList(data)
@@ -80,9 +80,14 @@ internal extension Data {
 internal extension Data {
     // LIST_EXT
     mutating func appendList(_ arr: [Any]) throws {
+        if arr.isEmpty {
+            append(ETFKit.Tag.EMPTY_LIST.rawValue)
+            return
+        }
         append(ETFKit.Tag.LIST.rawValue) // Tag
         append(UInt32(arr.count).bigEndian.data) // Length (32-bit)
         for elem in arr { try appendAny(elem) } // Elems
+        append(ETFKit.Tag.EMPTY_LIST.rawValue)
     }
 
     // MAP_EXT

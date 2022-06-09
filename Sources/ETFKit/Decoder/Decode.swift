@@ -8,7 +8,7 @@
 import Foundation
 
 extension ETFKit {
-    internal static func decode(data: Data) throws -> Any {
+    internal static func decode(_ data: Data) throws -> Any {
         // Decode header
         guard data[0] == ETFKit.VERSION else {
             throw ETFDecodingError.MismatchingTag("Expected version \(ETFKit.VERSION), got \(data[0])")
@@ -98,8 +98,8 @@ extension ETFKit {
     internal static func decodingAny(data: Data, from idx: inout Int) throws -> Any {
         switch Tag(rawValue: data[idx]) {
         case .NEW_FLOAT: return try decodingValue(data: data, from: &idx) as Double
-        case .SMALL_INT: return try decodingValue(data: data, from: &idx) as UInt8
-        case .INTEGER: return try decodingValue(data: data, from: &idx) as Int32
+        case .SMALL_INT: return Int(try decodingValue(data: data, from: &idx) as UInt8)
+        case .INTEGER: return Int(try decodingValue(data: data, from: &idx) as Int32)
         case .MAP: return try decodingMap(data: data, from: &idx)
         case .EMPTY_LIST: fallthrough
         case .LIST: return try decodingArray(data: data, from: &idx)
@@ -129,6 +129,10 @@ extension ETFKit {
             arr.append(try decodingAny(data: data, from: &idx))
             len -= 1
         }
+        guard data[idx] == Tag.EMPTY_LIST.rawValue else {
+            throw ETFDecodingError.MismatchingTag("List does not end with a tail marker")
+        }
+        idx += 1
         return arr
     }
 
