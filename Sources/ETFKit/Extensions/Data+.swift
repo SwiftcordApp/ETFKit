@@ -8,8 +8,8 @@
 import Foundation
 
 extension Data {
-    internal func toUInt32() -> Int32 {
-        Int32(bigEndian: self.withUnsafeBytes { $0.pointee })
+    internal func toInt32() -> Int32 {
+        Int32(bigEndian: self.withUnsafeBytes { $0.load(as: Int32.self) })
     }
 
     internal func toDouble() -> Double {

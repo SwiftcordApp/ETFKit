@@ -43,7 +43,7 @@ extension ETFKit {
             throw ETFDecodingError.MismatchingTag("Expected tag \(ETFTags.INTEGER), got \(data[idx])")
         }
         idx += 5
-        return data.subdata(in: idx-4..<idx).toUInt32()
+        return data.subdata(in: idx-4..<idx).toInt32()
     }
     fileprivate static func decodingValue(data: Data, from idx: inout Int) throws -> Double {
         guard data[idx] == ETFTags.NEW_FLOAT.rawValue else {
@@ -58,7 +58,7 @@ extension ETFKit {
         }
         idx += 1
         let dataStart = idx + 4
-        let to = dataStart + Int(data.subdata(in: idx..<dataStart).toUInt32())
+        let to = dataStart + Int(data.subdata(in: idx..<dataStart).toInt32())
         idx = to
         // Binaries are always strings, might as well decode them in this function itself
         return String(decoding: data.subdata(in: dataStart..<Data.Index(to)), as: UTF8.self)
@@ -92,7 +92,7 @@ extension ETFKit {
         }
 
         idx += 1
-        var len = Int(data.subdata(in: idx..<idx+4).toUInt32())
+        var len = Int(data.subdata(in: idx..<idx+4).toInt32())
         var arr: [Any] = []
         idx += 4
 
