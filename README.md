@@ -1,5 +1,7 @@
 # ETFKit
 
+[![Build and test](https://github.com/SwiftcordApp/ETFKit/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/SwiftcordApp/ETFKit/actions/workflows/build-and-test.yml)
+
 Decode/encode Erlang External Term format (ETF) version 131. 
 
 Designed to be a drop-in replacement for JSONDecoder/JSONEncoder. Simply
