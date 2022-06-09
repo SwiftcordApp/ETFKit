@@ -36,4 +36,14 @@ jobs:
           version: 13.3.1
 
       - name: Test
-        run: swift test
+        run: swift test --enable-code-coverage
+        
+      - name: Export Code Coverage
+        run: |
+         xcrun llvm-cov export -format="lcov" .build/debug/ETFKitPackageTests.xctest/Contents/MacOS/ETFKitPackageTests \
+         -instr-profile .build/debug/codecov/default.profdata > coverage.lcov
+         
+      - name: Upload Code Coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          files: ./coverage.lcov
