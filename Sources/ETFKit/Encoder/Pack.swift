@@ -8,7 +8,10 @@
 import Foundation
 
 extension ETFKit {
-    internal static func packMap() {
-        
+    internal static func packMap() -> Data {
+        var d = Data()
+        d.insertHeader()
+        d.appendValue("Hello world")
+        return d
     }
 }

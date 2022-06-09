@@ -39,3 +39,9 @@ final class DecodeTests: XCTestCase {
         print(String(describing: try ETFKit.parseDict(data: Data(base64Encoded: "g3QAAAABbQAAAAFibQAAAAbkvaDlpb0=")!)))
     }
 }
+
+final class PackTests: XCTestCase {
+    func testSimplePack() throws {
+        print(ETFKit.packMap().base64EncodedString())
+    }
+}

@@ -1,9 +1,9 @@
 import Foundation
 
 public struct ETFKit {
-    static let VERSION = 131
+    static let VERSION: UInt8 = 131
 
-    enum ETFTags: Int {
+    enum ETFTags: UInt8 {
         case NEW_FLOAT = 70
         case SMALL_INT = 97
         case INTEGER = 98

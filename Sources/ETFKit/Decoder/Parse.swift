@@ -9,6 +9,7 @@ import Foundation
 
 // Primitive decoding functions
 extension ETFKit {
+    // SMALL_INTEGER_EXT
     internal static func decodingValue(data: Data, from idx: inout Int) throws -> UInt8 {
         guard data[idx] == ETFTags.SMALL_INT.rawValue else {
             throw ETFDecodingError.MismatchingTag("Expected tag \(ETFTags.SMALL_INT), got \(data[idx])")
@@ -16,6 +17,7 @@ extension ETFKit {
         idx += 2
         return data[idx - 1]
     }
+    // INTEGER_EXT
     internal static func decodingValue(data: Data, from idx: inout Int) throws -> Int32 {
         guard data[idx] == ETFTags.INTEGER.rawValue else {
             throw ETFDecodingError.MismatchingTag("Expected tag \(ETFTags.INTEGER), got \(data[idx])")
@@ -23,6 +25,7 @@ extension ETFKit {
         idx += 5
         return data.subdata(in: idx-4..<idx).toInt32()
     }
+    // SMALL_BIG_EXT (Unused)
     internal static func decodingValue(data: Data, from idx: inout Int) throws -> Decimal {
         guard data[idx] == ETFTags.SMALL_BIG.rawValue else {
             throw ETFDecodingError.MismatchingTag("Expected tag \(ETFTags.SMALL_BIG), got \(data[idx])")
@@ -38,6 +41,7 @@ extension ETFKit {
         if sign == 1 { sum *= -1 }
         return sum
     }
+    // NEW_FLOAT_EXT
     internal static func decodingValue(data: Data, from idx: inout Int) throws -> Double {
         guard data[idx] == ETFTags.NEW_FLOAT.rawValue else {
             throw ETFDecodingError.MismatchingTag("Expected tag \(ETFTags.NEW_FLOAT), got \(data[idx])")
@@ -45,6 +49,7 @@ extension ETFKit {
         idx += 9
         return data.subdata(in: idx-8..<idx).toDouble()
     }
+    // BINARY_EXT
     internal static func decodingValue(data: Data, from idx: inout Int) throws -> String {
         guard data[idx] == ETFTags.BINARY.rawValue else {
             throw ETFDecodingError.MismatchingTag("Expected tag \(ETFTags.BINARY), got \(data[idx])")
@@ -78,7 +83,7 @@ extension ETFKit {
     }
 
     internal static func decodingAny(data: Data, from idx: inout Int) throws -> Any {
-        switch ETFTags(rawValue: Int(data[idx])) {
+        switch ETFTags(rawValue: data[idx]) {
         case .NEW_FLOAT: return try decodingValue(data: data, from: &idx) as Double
         case .SMALL_INT: return try decodingValue(data: data, from: &idx) as UInt8
         case .INTEGER: return try decodingValue(data: data, from: &idx) as Int32
