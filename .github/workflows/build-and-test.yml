@@ -1,0 +1,21 @@
+name: Build and test
+
+on:
+  push:
+  pull_request:
+      branches: [ "main" ]
+
+  # Allows this workflow to be manually run
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build
+      run: swift build -v
+    - name: Run tests
+      run: swift test -v
