@@ -2,24 +2,24 @@
 
 [![Build and test](https://github.com/SwiftcordApp/ETFKit/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/SwiftcordApp/ETFKit/actions/workflows/build-and-test.yml)
 
-Decode/encode Erlang External Term format (ETF) version 131. 
+Encoder/decoder for Erlang's [External Term Format](https://www.erlang.org/doc/apps/erts/erl_ext_dist.html) (version 131). 
 
 Designed to be a drop-in replacement for JSONDecoder/JSONEncoder. Simply
 replace all usages of JSONDecoder/JSONEncoder with ETFEncoder/ETFDecoder. (WIP)
 
-### Things that can be packed:
+### Types that can be encoded/decoded:
 
 - [x] `nil`
 - [x] `Bool`
 - [x] `String`
 - [ ] Atoms
-- [x] Unicode Strings
+- [x] `String` with unicode
 - [x] `Double`
 - [x] `Int8`
 - [x] `Int32`
 - [ ] `Int64`
 - [x] Objects
-- [x] Arrays
+- [x] Arrays with any supported type
 - [ ] Tuples
 - [ ] PIDs
 - [ ] Ports
