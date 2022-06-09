@@ -8,7 +8,7 @@ final class DecodeTests: XCTestCase {
         // Use XCTAssert and related functions to verify your tests produce the correct
         // results.
         // XCTAssertEqual(ETFKit().text, "Hello, World!")
-        print(String(describing: try ETFKit.parseDict(data: Data(base64Encoded: "g3QAAAABbQAAAAFhbAAAAARtAAAAAWJtAAAAAWNhAXQAAAABbQAAAAVoZWxsb20AAAAFd29ybGRq")!)))
+        print(String(describing: try ETFKit.parseDict(data: Data(base64Encoded: "g3QAAAACbQAAAAJvcGEObQAAAAFkdAAAAAdtAAAACGd1aWxkX2lkbQAAABI4NjczOTE3MTA0MDgyMTI1MTJtAAAABnR5cGluZ3MEdHJ1ZW0AAAAHdGhyZWFkc3MEdHJ1ZW0AAAAKYWN0aXZpdGllc3MEdHJ1ZW0AAAAHbWVtYmVyc2ptAAAACGNoYW5uZWxzdAAAAABtAAAAE3RocmVhZF9tZW1iZXJfbGlzdHNq")!)))
     }
 
     func testBigEndian() throws {
@@ -17,6 +17,10 @@ final class DecodeTests: XCTestCase {
 
     func testList() throws {
         print(String(describing: try ETFKit.parseDict(data: Data(base64Encoded: "g3QAAAABbQAAAAFhbAAAAANtAAAAAWJtAAAAAWNtAAAAAWRq")!)))
+    }
+    
+    func testEmptyList() throws {
+        print(String(describing: try ETFKit.parseDict(data: Data(base64Encoded: "g3QAAAABbQAAAAVlbXB0eWo=")!)))
     }
 
     func testDouble() throws {
