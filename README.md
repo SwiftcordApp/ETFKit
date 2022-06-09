@@ -7,8 +7,8 @@ replace all usages of JSONDecoder/JSONEncoder with ETFEncoder/ETFDecoder. (WIP)
 
 ### Things that can be packed:
 
-- [ ] `nil`
-- [ ] `Bool`
+- [x] `nil`
+- [x] `Bool`
 - [x] `String`
 - [ ] Atoms
 - [x] Unicode Strings

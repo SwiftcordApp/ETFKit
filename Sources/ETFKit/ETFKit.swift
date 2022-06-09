@@ -10,6 +10,7 @@ public struct ETFKit {
         case FLOAT = 99
         case LIST = 108
         case BINARY = 109
+        case SMALL_AROM = 115
         case MAP = 116
     }
 
@@ -17,6 +18,7 @@ public struct ETFKit {
         case MismatchingVersion(String)
         case MismatchingTag(String)
         case UnhandledTag(String)
+        case UnknownAtom(String)
     }
 
     internal static func parseDict(data: Data) throws -> [String : Any] {
@@ -66,21 +68,31 @@ extension ETFKit {
 }
 
 extension ETFKit {
+    private static func decodingAtom(data: Data, from idx: inout Int) throws -> Any? {
+        guard data[idx] == ETFTags.SMALL_AROM.rawValue else {
+            throw ETFDecodingError.MismatchingTag("Expected tag \(ETFTags.SMALL_AROM), got \(data[idx])")
+        }
+        idx += 2
+        let to = idx + Int(data[idx-1])
+
+        let atomName = String(decoding: data.subdata(in: idx..<to), as: UTF8.self)
+        switch atomName {
+        case "nil": return nil
+        case "false": return false
+        case "true": return true
+        default: throw ETFDecodingError.UnknownAtom("Unknown atom name '\(atomName)'")
+        }
+    }
+
     private static func decodingAny(data: Data, from idx: inout Int) throws -> Any {
         switch ETFTags(rawValue: Int(data[idx])) {
-        case .NEW_FLOAT:
-            return try decodingValue(data: data, from: &idx) as Double
-        case .SMALL_INT:
-            return try decodingValue(data: data, from: &idx) as UInt8
-        case .INTEGER:
-            return try decodingValue(data: data, from: &idx) as Int32
-        case .MAP:
-            return try decodingMap(data: data, from: &idx)
-        case .LIST:
-            return try decodingArray(data: data, from: &idx)
-        case .BINARY:
-            // Binaries are always strings
-            return try decodingValue(data: data, from: &idx) as String
+        case .NEW_FLOAT: return try decodingValue(data: data, from: &idx) as Double
+        case .SMALL_INT: return try decodingValue(data: data, from: &idx) as UInt8
+        case .INTEGER: return try decodingValue(data: data, from: &idx) as Int32
+        case .MAP: return try decodingMap(data: data, from: &idx)
+        case .LIST: return try decodingArray(data: data, from: &idx)
+        case .BINARY: return try decodingValue(data: data, from: &idx) as String
+        case .SMALL_AROM: return try decodingAtom(data: data, from: &idx)
         default:
             throw ETFDecodingError.UnhandledTag("Tag \(data[idx]) is not handled")
         }

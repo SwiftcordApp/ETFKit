@@ -22,4 +22,16 @@ final class DecodeTests: XCTestCase {
     func testDouble() throws {
         print(String(describing: try ETFKit.parseDict(data: Data(base64Encoded: "g3QAAAABbQAAAAF2RkAkMzMzMzMz")!)))
     }
+
+    func testNil() throws {
+        print(String(describing: try ETFKit.parseDict(data: Data(base64Encoded: "g3QAAAABbQAAAAFucwNuaWw=")!)))
+    }
+
+    func testBool() throws {
+        print(String(describing: try ETFKit.parseDict(data: Data(base64Encoded: "g3QAAAABbQAAAAFicwVmYWxzZQ==")!)))
+    }
+
+    func testUnicode() throws {
+        print(String(describing: try ETFKit.parseDict(data: Data(base64Encoded: "g3QAAAABbQAAAAFibQAAAAbkvaDlpb0=")!)))
+    }
 }
