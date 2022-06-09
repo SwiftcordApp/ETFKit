@@ -10,12 +10,16 @@ final class DecodeTests: XCTestCase {
         // XCTAssertEqual(ETFKit().text, "Hello, World!")
         print(String(describing: try ETFKit.parseDict(data: Data(base64Encoded: "g3QAAAABbQAAAAFhbAAAAARtAAAAAWJtAAAAAWNhAXQAAAABbQAAAAVoZWxsb20AAAAFd29ybGRq")!)))
     }
-    
+
     func testBigEndian() throws {
         print(String(describing: try ETFKit.parseDict(data: Data(base64Encoded: "g3QAAAACbQAAAAFhYjp7/1VtAAAAAWJtAAAAAWM=")!)))
     }
-    
+
     func testList() throws {
         print(String(describing: try ETFKit.parseDict(data: Data(base64Encoded: "g3QAAAABbQAAAAFhbAAAAANtAAAAAWJtAAAAAWNtAAAAAWRq")!)))
+    }
+
+    func testDouble() throws {
+        print(String(describing: try ETFKit.parseDict(data: Data(base64Encoded: "g3QAAAABbQAAAAF2RkAkMzMzMzMz")!)))
     }
 }

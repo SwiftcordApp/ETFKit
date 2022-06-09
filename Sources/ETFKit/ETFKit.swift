@@ -4,6 +4,7 @@ public struct ETFKit {
     static let VERSION = 131
 
     enum ETFTags: Int {
+        case NEW_FLOAT = 70
         case SMALL_INT = 97
         case INTEGER = 98
         case FLOAT = 99
@@ -11,7 +12,7 @@ public struct ETFKit {
         case BINARY = 109
         case MAP = 116
     }
-    
+
     enum ETFDecodingError: Error {
         case MismatchingVersion(String)
         case MismatchingTag(String)
@@ -45,7 +46,11 @@ extension ETFKit {
         return data.subdata(in: idx-4..<idx).toUInt32()
     }
     fileprivate static func decodingValue(data: Data, from idx: inout Int) throws -> Double {
-        throw ETFDecodingError.MismatchingTag("")
+        guard data[idx] == ETFTags.NEW_FLOAT.rawValue else {
+            throw ETFDecodingError.MismatchingTag("Expected tag \(ETFTags.NEW_FLOAT), got \(data[idx])")
+        }
+        idx += 9
+        return data.subdata(in: idx-8..<idx).toDouble()
     }
     fileprivate static func decodingValue(data: Data, from idx: inout Int) throws -> String {
         guard data[idx] == ETFTags.BINARY.rawValue else {
@@ -63,20 +68,19 @@ extension ETFKit {
 extension ETFKit {
     private static func decodingAny(data: Data, from idx: inout Int) throws -> Any {
         switch ETFTags(rawValue: Int(data[idx])) {
+        case .NEW_FLOAT:
+            return try decodingValue(data: data, from: &idx) as Double
         case .SMALL_INT:
-            let val: UInt8 = try decodingValue(data: data, from: &idx)
-            return val
+            return try decodingValue(data: data, from: &idx) as UInt8
         case .INTEGER:
-            let val: Int32 = try decodingValue(data: data, from: &idx)
-            return val
+            return try decodingValue(data: data, from: &idx) as Int32
         case .MAP:
             return try decodingMap(data: data, from: &idx)
         case .LIST:
             return try decodingArray(data: data, from: &idx)
         case .BINARY:
             // Binaries are always strings
-            let val: String = try decodingValue(data: data, from: &idx)
-            return val
+            return try decodingValue(data: data, from: &idx) as String
         default:
             throw ETFDecodingError.UnhandledTag("Tag \(data[idx]) is not handled")
         }
@@ -86,12 +90,12 @@ extension ETFKit {
         guard data[idx] == ETFTags.LIST.rawValue else {
             throw ETFDecodingError.MismatchingTag("Expected tag \(ETFTags.LIST), got \(data[idx])")
         }
-        
+
         idx += 1
         var len = Int(data.subdata(in: idx..<idx+4).toUInt32())
         var arr: [Any] = []
         idx += 4
-        
+
         while len > 0 {
             arr.append(try decodingAny(data: data, from: &idx))
             len -= 1
@@ -108,7 +112,7 @@ extension ETFKit {
         var pairs = data[idx]
         var dict: [String : Any] = [:]
         idx += 1
-        
+
         while pairs > 0 {
             let key: String = try decodingValue(data: data, from: &idx)
             dict.updateValue(try decodingAny(data: data, from: &idx), forKey: key)
