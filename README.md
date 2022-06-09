@@ -1,6 +1,7 @@
 # ETFKit
 
 [![Build and test](https://github.com/SwiftcordApp/ETFKit/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/SwiftcordApp/ETFKit/actions/workflows/build-and-test.yml)
+[![Codecov](https://codecov.io/gh/SwiftcordApp/ETFKit/branch/main/graph/badge.svg?token=IVDY2F5L75)](https://codecov.io/gh/SwiftcordApp/ETFKit)
 
 Encoder/decoder for Erlang's [External Term Format](https://www.erlang.org/doc/apps/erts/erl_ext_dist.html) (version 131). 
 
