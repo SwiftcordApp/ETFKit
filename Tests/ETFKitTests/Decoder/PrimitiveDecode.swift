@@ -31,13 +31,13 @@ final class PrimitiveDecodeTests: XCTestCase {
             "Explicit Int16"
         )
         XCTAssertEqual(
-            try ETFDecoder().decode(Int16.self, from: Data(base64Encoded: "g2IAAAGk")!),
+            try ETFDecoder().decode(Int32.self, from: Data(base64Encoded: "g2IAAAGk")!),
             420,
             "Explicit Int32"
         )
 
         XCTAssertEqual(
-            try ETFDecoder().decode(UInt16.self, from: Data(base64Encoded: "g2E0")!),
+            try ETFDecoder().decode(UInt.self, from: Data(base64Encoded: "g2E0")!),
             52,
             "Explicit UInt"
         )
@@ -52,10 +52,20 @@ final class PrimitiveDecodeTests: XCTestCase {
             "Explicit UInt16"
         )
         XCTAssertEqual(
-            try ETFDecoder().decode(UInt16.self, from: Data(base64Encoded: "g2IAAAgA")!),
+            try ETFDecoder().decode(UInt32.self, from: Data(base64Encoded: "g2IAAAgA")!),
             2048,
             "Explicit UInt32"
         )
+        try XCTExpectFailure("64-bit integers aren't supported yet") {
+            XCTAssertNoThrow(
+                try ETFDecoder().decode(Int64.self, from: Data(base64Encoded: "g2IAAAgA")!),
+                "Int64"
+            )
+            XCTAssertNoThrow(
+                try ETFDecoder().decode(UInt64.self, from: Data(base64Encoded: "g2IAAAgA")!),
+                "UInt64"
+            )
+        }
     }
 
     func testString() throws {
