@@ -9,29 +9,39 @@ import Foundation
 
 open class ETFDecoder {
     open func decode<T>(_ type: T.Type, from data: Data) throws -> T where T : Decodable {
-        return try type.init(from: _ETFDecoder())
+        let decoded: Any?
+        do { decoded = try ETFKit.decode(data) } catch {
+            throw DecodingError.dataCorrupted(.init(
+                codingPath: [],
+                debugDescription: "Could not decode provided data. It might not be valid ETF."
+            ))
+        }
+
+        return try type.init(from: _ETFDecoder(with: decoded))
     }
 }
 
 internal class _ETFDecoder: Decoder {
-    internal(set) public var codingPath: [CodingKey]
-    
+    internal(set) public var codingPath: [CodingKey] = []
+
     /// Contextual user-provided information for use during encoding.
     public var userInfo: [CodingUserInfoKey : Any] = [:]
+    
+    internal let decoded: Any?
 
     func container<Key>(keyedBy: Key.Type) throws -> KeyedDecodingContainer<Key> {
         fatalError()
     }
 
     func singleValueContainer() throws -> SingleValueDecodingContainer {
-        fatalError()
+        return self
     }
 
     func unkeyedContainer() throws -> UnkeyedDecodingContainer {
         fatalError()
     }
 
-    init(at codingPath: [CodingKey] = []) {
-        self.codingPath = codingPath
+    init(with decoded: Any?) {
+        self.decoded = decoded
     }
 }

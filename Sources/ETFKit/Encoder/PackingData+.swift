@@ -72,7 +72,10 @@ internal extension Data {
         } else if let data = data as? [String : Any] {
             try appendDict(data)
         } else {
-            throw ETFKit.ETFEncodingError.UnencodableType("Unable to pack data: \(String(describing: data))")
+            throw EncodingError.invalidValue(
+                data,
+                .init(codingPath: [], debugDescription: "Unsupported data type for packing")
+            )
         }
     }
 }

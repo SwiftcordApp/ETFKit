@@ -8,7 +8,7 @@
 import Foundation
 
 extension ETFKit {
-    internal static func decode(_ data: Data) throws -> Any {
+    internal static func decode(_ data: Data) throws -> Any? {
         // Decode header
         guard data[0] == ETFKit.VERSION else {
             throw ETFDecodingError.MismatchingTag("Expected version \(ETFKit.VERSION), got \(data[0])")
@@ -95,7 +95,7 @@ extension ETFKit {
         }
     }
 
-    internal static func decodingAny(data: Data, from idx: inout Int) throws -> Any {
+    internal static func decodingAny(data: Data, from idx: inout Int) throws -> Any? {
         switch Tag(rawValue: data[idx]) {
         case .NEW_FLOAT: return try decodingValue(data: data, from: &idx) as Double
         case .SMALL_INT: return Int(try decodingValue(data: data, from: &idx) as UInt8)
@@ -104,7 +104,7 @@ extension ETFKit {
         case .EMPTY_LIST: fallthrough
         case .LIST: return try decodingArray(data: data, from: &idx)
         case .BINARY: return try decodingValue(data: data, from: &idx) as String
-        case .SMALL_AROM: return try decodingSmallAtom(data: data, from: &idx) as Any
+        case .SMALL_AROM: return try decodingSmallAtom(data: data, from: &idx) as Any?
         default: throw ETFDecodingError.UnhandledTag("Tag \(data[idx]) is not handled")
         }
     }
