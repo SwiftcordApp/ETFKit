@@ -44,7 +44,7 @@ internal struct _ETFKeyedDecodingContainer<K : CodingKey> : KeyedDecodingContain
     /// - parameter key: The key to search for.
     /// - returns: Whether the `Decoder` has an entry for the given key.
     func contains(_ key: Key) -> Bool {
-        decoded.keys.contains(key.stringValue)
+        return decoded[key.stringValue] != nil
     }
 
     /// Decodes a null value for the given key.
@@ -54,13 +54,14 @@ internal struct _ETFKeyedDecodingContainer<K : CodingKey> : KeyedDecodingContain
     /// - throws: `DecodingError.keyNotFound` if `self` does not have an entry
     ///   for the given key.
     func decodeNil(forKey key: Key) throws -> Bool {
-        guard contains(key) else {
+        if let val = decoded[key.stringValue] {
+            return val == nil
+        } else {
             throw DecodingError.keyNotFound(
                 key,
                 .init(codingPath: codingPath, debugDescription: "Dict does not have key: \(key)")
             )
         }
-        return decoded[key.stringValue] == nil
     }
 
     /// Decodes a value of the given type for the given key.
@@ -345,6 +346,7 @@ internal struct _ETFKeyedDecodingContainer<K : CodingKey> : KeyedDecodingContain
     ///   is not convertible to the requested type.
     func decodeIfPresent(_ type: Bool.Type, forKey key: Self.Key) throws -> Bool? {
         if decoded[key.stringValue] == nil { return nil }
+        if try decodeNil(forKey: key) { return nil }
         guard let val = decoded[key.stringValue] as? Bool else {
             throw DecodingError.typeMismatch(type, .init(codingPath: codingPath, debugDescription: ""))
         }
@@ -366,6 +368,7 @@ internal struct _ETFKeyedDecodingContainer<K : CodingKey> : KeyedDecodingContain
     ///   is not convertible to the requested type.
     func decodeIfPresent(_ type: String.Type, forKey key: Self.Key) throws -> String? {
         if decoded[key.stringValue] == nil { return nil }
+        if try decodeNil(forKey: key) { return nil }
         guard let val = decoded[key.stringValue] as? String else {
             throw DecodingError.typeMismatch(type, .init(codingPath: codingPath, debugDescription: ""))
         }
@@ -387,6 +390,7 @@ internal struct _ETFKeyedDecodingContainer<K : CodingKey> : KeyedDecodingContain
     ///   is not convertible to the requested type.
     func decodeIfPresent(_ type: Double.Type, forKey key: Self.Key) throws -> Double? {
         if decoded[key.stringValue] == nil { return nil }
+        if try decodeNil(forKey: key) { return nil }
         guard let val = decoded[key.stringValue] as? Double else {
             throw DecodingError.typeMismatch(type, .init(codingPath: codingPath, debugDescription: ""))
         }
@@ -427,6 +431,7 @@ internal struct _ETFKeyedDecodingContainer<K : CodingKey> : KeyedDecodingContain
     ///   is not convertible to the requested type.
     func decodeIfPresent(_ type: Int.Type, forKey key: Self.Key) throws -> Int? {
         if decoded[key.stringValue] == nil { return nil }
+        if try decodeNil(forKey: key) { return nil }
         guard let val = decoded[key.stringValue] as? Int else {
             throw DecodingError.typeMismatch(type, .init(codingPath: codingPath, debugDescription: ""))
         }
@@ -621,6 +626,7 @@ internal struct _ETFKeyedDecodingContainer<K : CodingKey> : KeyedDecodingContain
     ///   is not convertible to the requested type.
     func decodeIfPresent<T>(_ type: T.Type, forKey key: Self.Key) throws -> T? where T : Decodable {
         if decoded[key.stringValue] == nil { return nil }
+        if try decodeNil(forKey: key) { return nil }
         guard let val = decoded[key.stringValue] as? T else {
             throw DecodingError.typeMismatch(type, .init(codingPath: codingPath, debugDescription: ""))
         }

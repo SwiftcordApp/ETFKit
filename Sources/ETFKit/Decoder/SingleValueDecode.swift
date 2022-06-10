@@ -36,7 +36,7 @@ extension _ETFDecoder: SingleValueDecodingContainer {
     func decode(_ type: Float.Type) throws -> Float {
         Float(try decode(Double.self))
     }
-    
+
     func decode(_ type: Int.Type) throws -> Int {
         guard let val = decoded as? Int else {
             throw DecodingError.typeMismatch(Int.self, .init(codingPath: codingPath, debugDescription: ""))
