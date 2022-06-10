@@ -30,7 +30,13 @@ internal class _ETFDecoder: Decoder {
     internal let decoded: Any?
 
     func container<Key>(keyedBy: Key.Type) throws -> KeyedDecodingContainer<Key> {
-        fatalError()
+        guard let decoded = decoded as? [String : Any?] else {
+            throw DecodingError.typeMismatch(
+                [String : Any].self,
+                .init(codingPath: codingPath, debugDescription: "ETF data top level is not a map")
+            )
+        }
+        return KeyedDecodingContainer(_ETFKeyedDecodingContainer(with: decoded))
     }
 
     func singleValueContainer() throws -> SingleValueDecodingContainer {

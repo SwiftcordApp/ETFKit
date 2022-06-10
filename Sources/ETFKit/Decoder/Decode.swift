@@ -122,7 +122,7 @@ extension ETFKit {
 
         idx += 1
         var len = Int(data.subdata(in: idx..<idx+4).toInt32())
-        var arr: [Any] = []
+        var arr: [Any?] = []
         idx += 4
 
         while len > 0 {
@@ -144,7 +144,7 @@ extension ETFKit {
 
         idx += 4
         var pairs = data[idx]
-        var dict: [String : Any] = [:]
+        var dict: [String : Any?] = [:]
         idx += 1
 
         while pairs > 0 {
