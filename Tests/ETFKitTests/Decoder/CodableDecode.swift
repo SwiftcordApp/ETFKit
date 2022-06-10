@@ -35,8 +35,12 @@ final class CodableDecodeTests: XCTestCase {
         let signed: Int64
         let unsigned: UInt64
     }
+    struct UnsupportedPrimitiveOptionals: Codable {
+        let signed: Int64?
+        let unsigned: UInt64?
+    }
 
-    func testDecodeStruct() throws {
+    func testDecodePrimitiveStruct() throws {
         XCTAssertEqual(
             try ETFDecoder().decode(Primitive.self, from: Data(base64Encoded: "g3QAAAAMbQAAAApzb21lU3RyaW5nbQAAAAtoZWxsbyB3b3JsZG0AAAAIZnVubnlJbnRi///8AG0AAAAGYUZsb2F0RkAJHrhR64UfbQAAAAZ0aGlzSXNzBWZhbHNlbQAAAAV3cm9uZ0Y/v+OuZjZDiG0AAAABYWL////+bQAAAAFiYgAAAgttAAAAAWNiAAAQAG0AAAABZGEDbQAAAAFlYWZtAAAAAWZiAABQAG0AAAABZ2IADIAA")!),
             Primitive(
@@ -114,6 +118,23 @@ final class CodableDecodeTests: XCTestCase {
         XCTAssertThrowsError(
             try ETFDecoder().decode(UnsupportedPrimitive.self, from: Data(base64Encoded: "g3QAAAACbQAAAAZzaWduZWRGw3R4GuHGLrNtAAAACHVuc2lnbmVkRkI1PHHgIgAA")!),
             "Unsupported 64-bit types"
+        )
+        XCTAssertThrowsError(
+            try ETFDecoder().decode(UnsupportedPrimitiveOptionals.self, from: Data(base64Encoded: "g3QAAAAA")!),
+            "Unsupported 64-bit types (optionals)"
+        )
+    }
+
+    struct ComplexWithArray: Codable, Equatable {
+        let a: [String]
+    }
+    func testDecodeComplexStruct() throws {
+        XCTAssertEqual(
+            try ETFDecoder().decode(ComplexWithArray.self, from: Data(base64Encoded: "g3QAAAABbQAAAAFhbAAAAARtAAAABGxpc3RtAAAAAm9mbQAAAAE0bQAAAAdTdHJpbmdzag==")!),
+            ComplexWithArray(
+                a: ["list", "of", "4", "Strings"]
+            ),
+            "Struct with one [String] property"
         )
     }
 }
