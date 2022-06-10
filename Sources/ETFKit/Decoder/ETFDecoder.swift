@@ -36,7 +36,7 @@ internal class _ETFDecoder: Decoder {
                 .init(codingPath: codingPath, debugDescription: "ETF data top level is not a map")
             )
         }
-        return KeyedDecodingContainer(_ETFKeyedDecodingContainer(with: decoded))
+        return KeyedDecodingContainer(_ETFKeyedDecodingContainer(with: decoded, referencing: self))
     }
 
     func singleValueContainer() throws -> SingleValueDecodingContainer {

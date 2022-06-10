@@ -11,12 +11,15 @@ internal struct _ETFKeyedDecodingContainer<K : CodingKey> : KeyedDecodingContain
     typealias Key = K
 
     internal let decoded: [String : Any?]
+    private let decoder: _ETFDecoder
 
     /// The path of coding keys taken to get to this point in decoding.
-    private(set) public var codingPath: [CodingKey] = []
+    private(set) public var codingPath: [CodingKey]
 
-    init(with decoded: [String : Any?]) {
+    init(with decoded: [String : Any?], referencing decoder: _ETFDecoder) {
         self.decoded = decoded
+        self.decoder = decoder
+        codingPath = decoder.codingPath
     }
     
     private func ensureExists<T>(forKey key: Key, type: T.Type) throws {
@@ -63,67 +66,7 @@ internal struct _ETFKeyedDecodingContainer<K : CodingKey> : KeyedDecodingContain
             )
         }
     }
-
-    /// Decodes a value of the given type for the given key.
-    ///
-    /// - parameter type: The type of value to decode.
-    /// - parameter key: The key that the decoded value is associated with.
-    /// - returns: A value of the requested type, if present for the given key
-    ///   and convertible to the requested type.
-    /// - throws: `DecodingError.typeMismatch` if the encountered encoded value
-    ///   is not convertible to the requested type.
-    /// - throws: `DecodingError.keyNotFound` if `self` does not have an entry
-    ///   for the given key.
-    /// - throws: `DecodingError.valueNotFound` if `self` has a null entry for
-    ///   the given key.
-    func decode(_ type: Bool.Type, forKey key: Self.Key) throws -> Bool {
-        try ensureExists(forKey: key, type: type)
-        guard let val = decoded[key.stringValue] as? Bool else {
-            throw DecodingError.typeMismatch(type, .init(codingPath: codingPath, debugDescription: ""))
-        }
-        return val
-    }
-
-    /// Decodes a value of the given type for the given key.
-    ///
-    /// - parameter type: The type of value to decode.
-    /// - parameter key: The key that the decoded value is associated with.
-    /// - returns: A value of the requested type, if present for the given key
-    ///   and convertible to the requested type.
-    /// - throws: `DecodingError.typeMismatch` if the encountered encoded value
-    ///   is not convertible to the requested type.
-    /// - throws: `DecodingError.keyNotFound` if `self` does not have an entry
-    ///   for the given key.
-    /// - throws: `DecodingError.valueNotFound` if `self` has a null entry for
-    ///   the given key.
-    func decode(_ type: String.Type, forKey key: Self.Key) throws -> String {
-        try ensureExists(forKey: key, type: type)
-        guard let val = decoded[key.stringValue] as? String else {
-            throw DecodingError.typeMismatch(type, .init(codingPath: codingPath, debugDescription: ""))
-        }
-        return val
-    }
-
-    /// Decodes a value of the given type for the given key.
-    ///
-    /// - parameter type: The type of value to decode.
-    /// - parameter key: The key that the decoded value is associated with.
-    /// - returns: A value of the requested type, if present for the given key
-    ///   and convertible to the requested type.
-    /// - throws: `DecodingError.typeMismatch` if the encountered encoded value
-    ///   is not convertible to the requested type.
-    /// - throws: `DecodingError.keyNotFound` if `self` does not have an entry
-    ///   for the given key.
-    /// - throws: `DecodingError.valueNotFound` if `self` has a null entry for
-    ///   the given key.
-    func decode(_ type: Double.Type, forKey key: Self.Key) throws -> Double {
-        try ensureExists(forKey: key, type: type)
-        guard let val = decoded[key.stringValue] as? Double else {
-            throw DecodingError.typeMismatch(type, .init(codingPath: codingPath, debugDescription: ""))
-        }
-        return val
-    }
-
+    
     /// Decodes a value of the given type for the given key.
     ///
     /// - parameter type: The type of value to decode.
@@ -138,26 +81,6 @@ internal struct _ETFKeyedDecodingContainer<K : CodingKey> : KeyedDecodingContain
     ///   the given key.
     func decode(_ type: Float.Type, forKey key: Self.Key) throws -> Float {
         Float(try decode(Double.self, forKey: key))
-    }
-
-    /// Decodes a value of the given type for the given key.
-    ///
-    /// - parameter type: The type of value to decode.
-    /// - parameter key: The key that the decoded value is associated with.
-    /// - returns: A value of the requested type, if present for the given key
-    ///   and convertible to the requested type.
-    /// - throws: `DecodingError.typeMismatch` if the encountered encoded value
-    ///   is not convertible to the requested type.
-    /// - throws: `DecodingError.keyNotFound` if `self` does not have an entry
-    ///   for the given key.
-    /// - throws: `DecodingError.valueNotFound` if `self` has a null entry for
-    ///   the given key.
-    func decode(_ type: Int.Type, forKey key: Self.Key) throws -> Int {
-        try ensureExists(forKey: key, type: type)
-        guard let val = decoded[key.stringValue] as? Int else {
-            throw DecodingError.typeMismatch(type, .init(codingPath: codingPath, debugDescription: ""))
-        }
-        return val
     }
 
     /// Decodes a value of the given type for the given key.
@@ -325,73 +248,11 @@ internal struct _ETFKeyedDecodingContainer<K : CodingKey> : KeyedDecodingContain
     ///   the given key.
     func decode<T>(_ type: T.Type, forKey key: Self.Key) throws -> T where T : Decodable {
         try ensureExists(forKey: key, type: type)
+
+        decoder.codingPath.append(key)
+        defer { decoder.codingPath.removeLast() }
+
         guard let val = decoded[key.stringValue] as? T else {
-            throw DecodingError.typeMismatch(type, .init(codingPath: codingPath, debugDescription: ""))
-        }
-        return val
-    }
-
-    /// Decodes a value of the given type for the given key, if present.
-    ///
-    /// This method returns `nil` if the container does not have a value
-    /// associated with `key`, or if the value is null. The difference between
-    /// these states can be distinguished with a `contains(_:)` call.
-    ///
-    /// - parameter type: The type of value to decode.
-    /// - parameter key: The key that the decoded value is associated with.
-    /// - returns: A decoded value of the requested type, or `nil` if the
-    ///   `Decoder` does not have an entry associated with the given key, or if
-    ///   the value is a null value.
-    /// - throws: `DecodingError.typeMismatch` if the encountered encoded value
-    ///   is not convertible to the requested type.
-    func decodeIfPresent(_ type: Bool.Type, forKey key: Self.Key) throws -> Bool? {
-        if decoded[key.stringValue] == nil { return nil }
-        if try decodeNil(forKey: key) { return nil }
-        guard let val = decoded[key.stringValue] as? Bool else {
-            throw DecodingError.typeMismatch(type, .init(codingPath: codingPath, debugDescription: ""))
-        }
-        return val
-    }
-
-    /// Decodes a value of the given type for the given key, if present.
-    ///
-    /// This method returns `nil` if the container does not have a value
-    /// associated with `key`, or if the value is null. The difference between
-    /// these states can be distinguished with a `contains(_:)` call.
-    ///
-    /// - parameter type: The type of value to decode.
-    /// - parameter key: The key that the decoded value is associated with.
-    /// - returns: A decoded value of the requested type, or `nil` if the
-    ///   `Decoder` does not have an entry associated with the given key, or if
-    ///   the value is a null value.
-    /// - throws: `DecodingError.typeMismatch` if the encountered encoded value
-    ///   is not convertible to the requested type.
-    func decodeIfPresent(_ type: String.Type, forKey key: Self.Key) throws -> String? {
-        if decoded[key.stringValue] == nil { return nil }
-        if try decodeNil(forKey: key) { return nil }
-        guard let val = decoded[key.stringValue] as? String else {
-            throw DecodingError.typeMismatch(type, .init(codingPath: codingPath, debugDescription: ""))
-        }
-        return val
-    }
-
-    /// Decodes a value of the given type for the given key, if present.
-    ///
-    /// This method returns `nil` if the container does not have a value
-    /// associated with `key`, or if the value is null. The difference between
-    /// these states can be distinguished with a `contains(_:)` call.
-    ///
-    /// - parameter type: The type of value to decode.
-    /// - parameter key: The key that the decoded value is associated with.
-    /// - returns: A decoded value of the requested type, or `nil` if the
-    ///   `Decoder` does not have an entry associated with the given key, or if
-    ///   the value is a null value.
-    /// - throws: `DecodingError.typeMismatch` if the encountered encoded value
-    ///   is not convertible to the requested type.
-    func decodeIfPresent(_ type: Double.Type, forKey key: Self.Key) throws -> Double? {
-        if decoded[key.stringValue] == nil { return nil }
-        if try decodeNil(forKey: key) { return nil }
-        guard let val = decoded[key.stringValue] as? Double else {
             throw DecodingError.typeMismatch(type, .init(codingPath: codingPath, debugDescription: ""))
         }
         return val
@@ -414,28 +275,6 @@ internal struct _ETFKeyedDecodingContainer<K : CodingKey> : KeyedDecodingContain
         if let val = try decodeIfPresent(Double.self, forKey: key) {
             return Float(val)
         } else { return nil }
-    }
-
-    /// Decodes a value of the given type for the given key, if present.
-    ///
-    /// This method returns `nil` if the container does not have a value
-    /// associated with `key`, or if the value is null. The difference between
-    /// these states can be distinguished with a `contains(_:)` call.
-    ///
-    /// - parameter type: The type of value to decode.
-    /// - parameter key: The key that the decoded value is associated with.
-    /// - returns: A decoded value of the requested type, or `nil` if the
-    ///   `Decoder` does not have an entry associated with the given key, or if
-    ///   the value is a null value.
-    /// - throws: `DecodingError.typeMismatch` if the encountered encoded value
-    ///   is not convertible to the requested type.
-    func decodeIfPresent(_ type: Int.Type, forKey key: Self.Key) throws -> Int? {
-        if decoded[key.stringValue] == nil { return nil }
-        if try decodeNil(forKey: key) { return nil }
-        guard let val = decoded[key.stringValue] as? Int else {
-            throw DecodingError.typeMismatch(type, .init(codingPath: codingPath, debugDescription: ""))
-        }
-        return val
     }
 
     /// Decodes a value of the given type for the given key, if present.
@@ -627,6 +466,10 @@ internal struct _ETFKeyedDecodingContainer<K : CodingKey> : KeyedDecodingContain
     func decodeIfPresent<T>(_ type: T.Type, forKey key: Self.Key) throws -> T? where T : Decodable {
         if decoded[key.stringValue] == nil { return nil }
         if try decodeNil(forKey: key) { return nil }
+
+        decoder.codingPath.append(key)
+        defer { decoder.codingPath.removeLast() }
+
         guard let val = decoded[key.stringValue] as? T else {
             throw DecodingError.typeMismatch(type, .init(codingPath: codingPath, debugDescription: ""))
         }

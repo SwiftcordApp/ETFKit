@@ -88,7 +88,7 @@ extension _ETFDecoder: SingleValueDecodingContainer {
 
     func decode<T>(_ type: T.Type) throws -> T where T : Decodable {
         guard let val = decoded as? T else {
-            throw DecodingError.typeMismatch(Int.self, .init(codingPath: codingPath, debugDescription: ""))
+            throw DecodingError.typeMismatch(type, .init(codingPath: codingPath, debugDescription: ""))
         }
         return val
     }
