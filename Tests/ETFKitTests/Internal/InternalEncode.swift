@@ -53,4 +53,28 @@ final class InternalEncodeTests: XCTestCase {
             "Empty list (NIL_EXT)"
         )
     }
+    
+    func testDictionary() throws {
+        XCTAssertEqual(
+            try ETFKit.encode(["hello": "world"]).base64EncodedString(),
+            "g3QAAAABbQAAAAVoZWxsb20AAAAFd29ybGQ=",
+            "Basic dictionary"
+        )
+
+        let kitchenSinkEncoded = try ETFKit.encode([
+            "list": ["of some numbers", 4096, 4, -257, -1, "to", "pack", nil, ["is": nil], true],
+            "a": "string",
+        ]).base64EncodedString()
+        let validEncodings = [
+            "g3QAAAACbQAAAAFhbQAAAAZzdHJpbmdtAAAABGxpc3RsAAAACm0AAAAPb2Ygc29tZSBudW1iZXJzYgAAEABhBGL///7/Yv////9tAAAAAnRvbQAAAARwYWNrcwNuaWx0AAAAAW0AAAACaXNzA25pbHMEdHJ1ZWo=",
+            "g3QAAAACbQAAAARsaXN0bAAAAAptAAAAD29mIHNvbWUgbnVtYmVyc2IAABAAYQRi///+/2L/////bQAAAAJ0b20AAAAEcGFja3MDbmlsdAAAAAFtAAAAAmlzcwNuaWxzBHRydWVqbQAAAAFhbQAAAAZzdHJpbmc="
+        ] // All possible combinations that might be produced since dicts are unordered
+        XCTAssert(validEncodings.contains(kitchenSinkEncoded), "Kitchen sink dictionary")
+    }
+
+    func testEncodingFailure() {
+        XCTAssertThrowsError(try ETFKit.encode(Date()), "Unencodable root element")
+        XCTAssertThrowsError(try ETFKit.encode(["oh", "no", UUID()]), "Unencodable list element")
+        XCTAssertThrowsError(try ETFKit.encode(["my": "love", "a": Data()]), "Unencodable dict element")
+    }
 }
