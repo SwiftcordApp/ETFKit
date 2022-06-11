@@ -12,36 +12,8 @@ extension _ETFDecoder: SingleValueDecodingContainer {
         decoded == nil
     }
 
-    func decode(_ type: Bool.Type) throws -> Bool {
-        guard let val = decoded as? Bool else {
-            throw DecodingError.typeMismatch(Bool.self, .init(codingPath: codingPath, debugDescription: ""))
-        }
-        return val
-    }
-
-    func decode(_ type: String.Type) throws -> String {
-        guard let val = decoded as? String else {
-            throw DecodingError.typeMismatch(String.self, .init(codingPath: codingPath, debugDescription: ""))
-        }
-        return val
-    }
-
-    func decode(_ type: Double.Type) throws -> Double {
-        guard let val = decoded as? Double else {
-            throw DecodingError.typeMismatch(Double.self, .init(codingPath: codingPath, debugDescription: ""))
-        }
-        return val
-    }
-
     func decode(_ type: Float.Type) throws -> Float {
         Float(try decode(Double.self))
-    }
-
-    func decode(_ type: Int.Type) throws -> Int {
-        guard let val = decoded as? Int else {
-            throw DecodingError.typeMismatch(Int.self, .init(codingPath: codingPath, debugDescription: ""))
-        }
-        return val
     }
 
     func decode(_ type: Int8.Type) throws -> Int8 {
